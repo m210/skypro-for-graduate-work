@@ -29,8 +29,8 @@ public interface AdsMapper {
     @Mapping(target = "image", ignore = true)
     Ads fromAdsDto(AdsDto adsDto, @Context UserRepository repository, @Context ImageRepository imagesRepository);
 
-    @Mapping(target = "pk", ignore = true)
-    Ads fromCreateAds(CreateAdsDto createAdsDto, User author, Images image);
+//    @Mapping(target = "pk", ignore = true)
+//    Ads fromCreateAds(CreateAdsDto createAdsDto, User author, String image);
 
     @AfterMapping
     default void fromAdsDto(@MappingTarget Ads ads, AdsDto adsDto, @Context UserRepository repository, @Context ImageRepository imagesRepository) {

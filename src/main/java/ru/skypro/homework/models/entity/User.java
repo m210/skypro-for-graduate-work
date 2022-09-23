@@ -21,7 +21,6 @@ public class User {
     private String lastName;
     private String phone;
     private String password;
-    private Role role;
     @OneToMany(mappedBy = "author")
     @JsonIgnore
     private List<Comments> commentsList;

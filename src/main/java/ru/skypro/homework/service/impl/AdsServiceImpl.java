@@ -42,11 +42,11 @@ public class AdsServiceImpl implements AdsService {
     @Override
     public AdsDto addAds(CreateAdsDto ads, MultipartFile file) throws IOException {
         logger.info("Trying to add new ad");
-        Images images = imageService.addImage(file);
-        Ads newAds = adsMapper.fromCreateAds(ads, new User(), images);
-        Ads response = adsRepository.save(newAds);
-        logger.info("The ad with pk = {} was saved ", response.getPk());
-        return adsMapper.toAdsDto(response);
+//        Images images = imageService.addImage(file);
+//        Ads newAds = adsMapper.fromCreateAds(ads, new User(), images);
+//        Ads response = adsRepository.save(newAds);
+//        logger.info("The ad with pk = {} was saved ", response.getPk());
+        return null; //adsMapper.toAdsDto(response);
     }
 
     @Override

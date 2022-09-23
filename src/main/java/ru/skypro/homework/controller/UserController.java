@@ -8,12 +8,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ru.skypro.homework.models.dto.CreateUserDto;
 import ru.skypro.homework.models.dto.NewPasswordDto;
 import ru.skypro.homework.models.dto.ResponseWrapper;
 import ru.skypro.homework.models.dto.UserDto;
-import ru.skypro.homework.models.entity.User;
 import ru.skypro.homework.service.UserService;
 
 import java.util.List;
@@ -33,6 +34,8 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden"),
             @ApiResponse(responseCode = "404", description = "Not Found") })
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<CreateUserDto> addUser(@RequestBody CreateUserDto user) {
         CreateUserDto result = userService.addUser(user);
@@ -57,8 +60,10 @@ public class UserController {
             @ApiResponse(responseCode = "204", description = "No Content"),
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden") })
+
+    @PreAuthorize("#user.email == authentication.principal.username")
     @PatchMapping("me")
-    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto user) {
+    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto user, Authentication authentication) {
         UserDto result = userService.updateUser(user);
         return ResponseEntity.ok(result);
     }
@@ -70,9 +75,11 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden"),
             @ApiResponse(responseCode = "404", description = "Not Found") })
+
+    @PreAuthorize("#username == authentication.principal.username")
     @PostMapping("set_password")
-    public ResponseEntity<NewPasswordDto> setPassword(@RequestBody NewPasswordDto newPassword) {
-        NewPasswordDto result = userService.setPassword(newPassword);
+    public ResponseEntity<NewPasswordDto> setPassword(@RequestBody NewPasswordDto newPassword, Authentication authentication) {
+        NewPasswordDto result = userService.setPassword(authentication.getName(), newPassword);
         return ResponseEntity.ok(result);
     }
 
