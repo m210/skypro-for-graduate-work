@@ -8,6 +8,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -37,8 +40,9 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "*/*", schema = @Schema(implementation = CreateUserDto.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
-            @ApiResponse(responseCode = "403", description = "Forbidden"),
-            @ApiResponse(responseCode = "404", description = "Not Found")})
+            @ApiResponse(responseCode = "403", description = "Forbidden")})
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<CreateUserDto> addUser(@RequestBody CreateUserDto user) {
         CreateUserDto result = userService.addUser(user);
@@ -52,10 +56,10 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden"),
             @ApiResponse(responseCode = "404", description = "Not Found")})
-    @GetMapping("me")
+    @GetMapping("notme")
     public ResponseWrapper<UserDto> getUsers() {
-//        List<UserDto> list = userService.getUsers();
-        List<UserDto> list = List.of(new UserDto("Test@mail.ru", "Test", 1, "Test", "+79555555555")); //todo удалить
+        List<UserDto> list = userService.getUsers();
+
         return new ResponseWrapper<>(list);
     }
 
@@ -65,6 +69,7 @@ public class UserController {
             @ApiResponse(responseCode = "204", description = "No Content"),
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden")})
+
     @PatchMapping("me")
     public ResponseEntity<UserDto> updateUser(@RequestBody UserDto user) {
         UserDto result = userService.updateUser(user);
@@ -73,12 +78,21 @@ public class UserController {
     }
 
     @Operation(summary = "setPassword", description = "", tags = {"Пользователи"}) //todo description
+    @GetMapping("me")
+    public ResponseEntity<UserDto> getUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDto result = userService.getUserDto(authentication.getName());
+
+        return ResponseEntity.ok(result);
+    }
+
+    @Operation(summary = "setPassword", description = "", tags = {"Пользователи"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "*/*", schema = @Schema(implementation = NewPasswordDto.class))),
-            @ApiResponse(responseCode = "201", description = "Created"),
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden"),
             @ApiResponse(responseCode = "404", description = "Not Found")})
+
     @PostMapping("set_password")
     public ResponseEntity<NewPasswordDto> setPassword(@RequestBody NewPasswordDto newPassword) {
         NewPasswordDto result = userService.setPassword(newPassword);

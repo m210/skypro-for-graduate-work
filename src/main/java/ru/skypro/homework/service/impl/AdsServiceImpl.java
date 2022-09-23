@@ -125,6 +125,8 @@ public class AdsServiceImpl implements AdsService {
     }
 
     private List<AdsDto> toAdsDtoList(List<Ads> ads) {
-        return ads.stream().map(adsMapper::toAdsDto).collect(Collectors.toList());
+        return ads.stream()
+                .map(adsMapper::toAdsDto)
+                .collect(Collectors.toList());
     }
 }

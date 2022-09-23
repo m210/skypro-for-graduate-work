@@ -17,8 +17,11 @@ public interface UserService {
 
     NewPasswordDto setPassword(NewPasswordDto newPassword);
 
-    UserDto getUserDto(Integer id);
-
     User getUser(Integer id);
 
+    UserDto getUserDto(Integer id);
+
+    User getUser(String username);
+
+    UserDto getUserDto(String username);
 }
