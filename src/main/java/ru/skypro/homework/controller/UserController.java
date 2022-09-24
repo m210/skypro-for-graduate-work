@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ru.skypro.homework.models.dto.CreateUserDto;
 import ru.skypro.homework.models.dto.NewPasswordDto;
@@ -46,7 +48,7 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden"),
             @ApiResponse(responseCode = "404", description = "Not Found") })
-    @GetMapping("me")
+    @GetMapping("notme")
     public ResponseWrapper<UserDto> getUsers() {
         List<UserDto> list = userService.getUsers();
         return new ResponseWrapper(list);
@@ -63,6 +65,13 @@ public class UserController {
     @PatchMapping("me")
     public ResponseEntity<UserDto> updateUser(@RequestBody UserDto user) {
         UserDto result = userService.updateUser(user);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("me")
+    public ResponseEntity<UserDto> getUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDto result = userService.getUserDto(authentication.getName());
         return ResponseEntity.ok(result);
     }
 

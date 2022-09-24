@@ -21,4 +21,6 @@ public interface UserService {
 
     User getUser(String username);
 
+    UserDto getUserDto(String username);
+
 }

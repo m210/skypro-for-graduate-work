@@ -138,4 +138,12 @@ public class UserServiceImpl implements UserService {
         logger.info("The user with name = {} was found", username);
         return user;
     }
+
+    @Override
+    public UserDto getUserDto(String username) {
+        User user = getUser(username);
+        return userMapper.toUserDto(user);
+    }
+
+
 }
