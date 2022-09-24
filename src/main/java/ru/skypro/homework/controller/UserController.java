@@ -32,10 +32,9 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "*/*", schema = @Schema(implementation = CreateUserDto.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
-            @ApiResponse(responseCode = "403", description = "Forbidden"),
-            @ApiResponse(responseCode = "404", description = "Not Found") })
+            @ApiResponse(responseCode = "403", description = "Forbidden") })
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<CreateUserDto> addUser(@RequestBody CreateUserDto user) {
         CreateUserDto result = userService.addUser(user);
@@ -63,7 +62,7 @@ public class UserController {
 
     @PreAuthorize("#user.email == authentication.principal.username")
     @PatchMapping("me")
-    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto user, Authentication authentication) {
+    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto user) {
         UserDto result = userService.updateUser(user);
         return ResponseEntity.ok(result);
     }
@@ -71,12 +70,10 @@ public class UserController {
     @Operation(summary = "setPassword", description = "", tags={ "Пользователи" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "*/*", schema = @Schema(implementation = NewPasswordDto.class))),
-            @ApiResponse(responseCode = "201", description = "Created"),
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden"),
             @ApiResponse(responseCode = "404", description = "Not Found") })
 
-    @PreAuthorize("#username == authentication.principal.username")
     @PostMapping("set_password")
     public ResponseEntity<NewPasswordDto> setPassword(@RequestBody NewPasswordDto newPassword, Authentication authentication) {
         NewPasswordDto result = userService.setPassword(authentication.getName(), newPassword);

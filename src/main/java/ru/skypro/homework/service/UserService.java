@@ -3,6 +3,7 @@ package ru.skypro.homework.service;
 import ru.skypro.homework.models.dto.CreateUserDto;
 import ru.skypro.homework.models.dto.NewPasswordDto;
 import ru.skypro.homework.models.dto.UserDto;
+import ru.skypro.homework.models.entity.User;
 
 import java.util.List;
 
@@ -18,6 +19,6 @@ public interface UserService {
 
     UserDto getUser(Integer id);
 
-    UserDto getUser(String username);
+    User getUser(String username);
 
 }

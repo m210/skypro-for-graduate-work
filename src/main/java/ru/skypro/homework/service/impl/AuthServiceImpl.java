@@ -34,8 +34,7 @@ public class AuthServiceImpl implements AuthService {
         }
         UserDetails userDetails = manager.loadUserByUsername(userName);
         String encryptedPassword = userDetails.getPassword();
-        String encryptedPasswordWithoutEncryptionType = encryptedPassword.substring(8);
-        return encoder.matches(password, encryptedPasswordWithoutEncryptionType);
+        return encoder.matches(password, encryptedPassword);
     }
 
     @Override
@@ -43,19 +42,22 @@ public class AuthServiceImpl implements AuthService {
         if (manager.userExists(registerReq.getUsername())) {
             return false;
         }
-        manager.createUser(
-                User.withDefaultPasswordEncoder()
-                        .password(registerReq.getPassword())
-                        .username(registerReq.getUsername())
-                        .roles(role.name())
-                        .build()
-        );
 
-        UserDto user = userService.getUser(registerReq.getUsername());
-        user.setFirstName(registerReq.getFirstName());
-        user.setLastName(registerReq.getLastName());
-        user.setPhone(registerReq.getPhone());
-        userService.updateUser(user);
+        UserDetails userDetails = User.builder()
+                .password(encoder.encode(registerReq.getPassword()))
+                .username(registerReq.getUsername())
+                .roles(role.name())
+                .build();
+
+        manager.createUser(userDetails);
+
+        // update user's firstname, lastname, phone after added by manager
+        UserDto userDto = new UserDto();
+        userDto.setEmail(userDetails.getUsername());
+        userDto.setFirstName(registerReq.getFirstName());
+        userDto.setLastName(registerReq.getLastName());
+        userDto.setPhone(registerReq.getPhone());
+        userService.updateUser(userDto);
 
         return true;
     }
