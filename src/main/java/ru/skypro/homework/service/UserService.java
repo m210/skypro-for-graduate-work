@@ -15,7 +15,7 @@ public interface UserService {
 
     UserDto updateUser(UserDto user);
 
-    NewPasswordDto setPassword(String username, NewPasswordDto newPassword);
+    NewPasswordDto setPassword(NewPasswordDto newPassword);
 
     UserDto getUser(Integer id);
 

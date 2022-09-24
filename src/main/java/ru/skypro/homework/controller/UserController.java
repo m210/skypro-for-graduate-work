@@ -9,17 +9,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.models.dto.CreateUserDto;
 import ru.skypro.homework.models.dto.NewPasswordDto;
 import ru.skypro.homework.models.dto.ResponseWrapper;
 import ru.skypro.homework.models.dto.UserDto;
 import ru.skypro.homework.service.UserService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Slf4j
@@ -63,9 +59,9 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden") })
 
-    @PreAuthorize("#user.email == authentication.principal.username")
+
     @PatchMapping("me")
-    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto user, @RequestPart("image") @Valid @NotNull MultipartFile file) {
+    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto user) {
         UserDto result = userService.updateUser(user);
         return ResponseEntity.ok(result);
     }
@@ -78,8 +74,8 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Not Found") })
 
     @PostMapping("set_password")
-    public ResponseEntity<NewPasswordDto> setPassword(@RequestBody NewPasswordDto newPassword, Authentication authentication) {
-        NewPasswordDto result = userService.setPassword(authentication.getName(), newPassword);
+    public ResponseEntity<NewPasswordDto> setPassword(@RequestBody NewPasswordDto newPassword) {
+        NewPasswordDto result = userService.setPassword(newPassword);
         return ResponseEntity.ok(result);
     }
 

@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -42,7 +44,7 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * @return list of the all users in data base
+     * @return list of the all users in a database
      */
     @Override
     public List<UserDto> getUsers() {
@@ -61,7 +63,9 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(UserDto userDto) {
         logger.info("Trying to update the userDto with id = {}", userDto.getId());
         try {
-            User user = getUser(userDto.getEmail());
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            User user = getUser(authentication.getName());
             logger.info("The userDto is found, updating...");
             if(userDto.getFirstName() != null) {
                 user.setFirstName(userDto.getFirstName());
@@ -84,17 +88,17 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * @param username - email of the user
      * @param newPassword - Dto with current password and new password
      * @return newPasswordDto if the password is changed or ResponseStatusException (status == 403)
      *         if current password of the user doesn't match with entered password
      */
     @Override
-    public NewPasswordDto setPassword(String username, NewPasswordDto newPassword) {
+    public NewPasswordDto setPassword(NewPasswordDto newPassword) {
         logger.info("trying to set new password");
 
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        User user = getUser(username);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = getUser(authentication.getName());
         if(!passwordEncoder.matches(newPassword.getCurrentPassword(), user.getPassword())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
