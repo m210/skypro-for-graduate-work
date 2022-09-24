@@ -11,12 +11,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.models.dto.CreateUserDto;
 import ru.skypro.homework.models.dto.NewPasswordDto;
 import ru.skypro.homework.models.dto.ResponseWrapper;
 import ru.skypro.homework.models.dto.UserDto;
 import ru.skypro.homework.service.UserService;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Slf4j
@@ -62,7 +65,7 @@ public class UserController {
 
     @PreAuthorize("#user.email == authentication.principal.username")
     @PatchMapping("me")
-    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto user) {
+    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto user, @RequestPart("image") @Valid @NotNull MultipartFile file) {
         UserDto result = userService.updateUser(user);
         return ResponseEntity.ok(result);
     }
