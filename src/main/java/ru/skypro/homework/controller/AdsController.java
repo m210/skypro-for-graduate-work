@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -100,5 +101,15 @@ public class AdsController {
     @PatchMapping("{id}")
     public AdsDto updateAds(@PathVariable Integer id, @Valid @RequestBody CreateAdsDto ads) {
         return adsService.updateAds(id, ads);
+    }
+
+    @GetMapping("/search")
+    public ResponseWrapper<AdsDto> findAds(@RequestParam String searchText) {
+        return new ResponseWrapper<>(adsService.findAds(searchText));
+    }
+
+    @GetMapping("/sort")
+    public ResponseWrapper<AdsDto> getSortedAds(@RequestParam Sort.Direction order) {
+        return new ResponseWrapper<>(adsService.getSortedAds(order));
     }
 }

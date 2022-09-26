@@ -2,6 +2,7 @@ package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
@@ -37,9 +38,7 @@ public class AdsServiceImpl implements AdsService {
             throw new NotFoundException("Ads not found");
         }
 
-        return allAds.stream()
-                .map(adsMapper::toAdsDto)
-                .collect(Collectors.toList());
+        return toAdsDtoList(allAds);
     }
 
     @Override
@@ -58,10 +57,7 @@ public class AdsServiceImpl implements AdsService {
         // FIXME: Just returns all
         log.info("Trying to get all user's ads");
 
-        return adsRepository.findAll()
-                .stream()
-                .map(adsMapper::toAdsDto)
-                .collect(Collectors.toList());
+        return toAdsDtoList(adsRepository.findAll());
     }
 
     @Transactional
@@ -106,5 +102,29 @@ public class AdsServiceImpl implements AdsService {
         log.info("The ad with id = {} was found", ad_pk);
 
         return ads;
+    }
+
+
+    /**
+     * @param title - the parameter to search a title like...
+     * @return list of found ads
+     */
+    @Override
+    public List<AdsDto> findAds(String title) {
+        log.info("Trying to find ads like {}", title);
+        return toAdsDtoList(adsRepository.findByTitleLikeIgnoreCase("%" + title + "%"));
+    }
+
+    /**
+     * @param order a sorting direction (ordering by increasing or decreasing)
+     * @return ordered list of all ads
+     */
+    @Override
+    public List<AdsDto> getSortedAds(Sort.Direction order) {
+        return toAdsDtoList(adsRepository.findAll(Sort.by(order, "title")));
+    }
+
+    private List<AdsDto> toAdsDtoList(List<Ads> ads) {
+        return ads.stream().map(adsMapper::toAdsDto).collect(Collectors.toList());
     }
 }
