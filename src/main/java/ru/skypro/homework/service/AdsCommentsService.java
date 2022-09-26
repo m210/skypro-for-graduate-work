@@ -6,14 +6,14 @@ import java.util.List;
 
 public interface AdsCommentsService {
 
-    List<AdsCommentDto> getAdsComments(String ad_pk);
+    List<AdsCommentDto> getAdsComments(String adPk);
 
-    AdsCommentDto addAdsComments(String ad_pk, AdsCommentDto comment);
+    AdsCommentDto addAdsComments(String adPk, AdsCommentDto adsCommentDto);
 
-    void deleteAdsComments(String ad_pk, Integer id);
+    void deleteAdsComment(String adPk, Integer id);
 
-    AdsCommentDto getAdsComments(String ad_pk, Integer id);
+    AdsCommentDto getAdsComment(String adPk, Integer id);
 
-    AdsCommentDto updateAdsComments(String ad_pk, Integer id, AdsCommentDto comment);
+    AdsCommentDto updateAdsComment(String adPk, Integer id, AdsCommentDto adsCommentDto);
 
 }
