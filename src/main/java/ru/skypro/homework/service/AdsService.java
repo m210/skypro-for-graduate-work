@@ -1,5 +1,6 @@
 package ru.skypro.homework.service;
 
+import org.springframework.data.domain.Sort;
 import ru.skypro.homework.models.dto.AdsDto;
 import ru.skypro.homework.models.dto.CreateAdsDto;
 import ru.skypro.homework.models.dto.FullAdsDto;
@@ -23,4 +24,8 @@ public interface AdsService {
     AdsDto updateAds(Integer id, CreateAdsDto ads);
 
     Ads getAds(Integer id);
+
+    List<AdsDto> findAds(String title);
+
+    List<AdsDto> getSortedAds(Sort.Direction order);
 }
