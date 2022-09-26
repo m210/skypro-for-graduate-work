@@ -61,11 +61,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDto updateUser(UserDto userDto) {
-        log.info("Trying to update the userDto with id = {}", userDto.getId());
+        log.info("Trying to update the userDto with username = {}", userDto.getEmail());
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-            User user = getUser(authentication.getName());
+            User user = getUser(userDto.getEmail());
             log.info("The userDto is found, updating...");
             if (userDto.getFirstName() != null) {
                 user.setFirstName(userDto.getFirstName());
@@ -106,7 +104,7 @@ public class UserServiceImpl implements UserService {
         String newPass = passwordEncoder.encode(newPassword.getNewPassword());
         user.setPassword(newPass);
         User response = userRepository.save(user);
-        log.info("The user with id = {} was updated ", response.getId());
+        log.info("The user with username = {} was updated ", response.getEmail());
 
         return newPassword;
     }

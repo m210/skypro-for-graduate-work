@@ -3,6 +3,8 @@ package ru.skypro.homework.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
@@ -44,7 +46,8 @@ public class AdsServiceImpl implements AdsService {
     @Override
     public AdsDto addAds(CreateAdsDto ads, Images images) {
         log.info("Trying to add new ad");
-        User user = userService.getUser(0);//todo заменить на текущего авторизованного юзера
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUser(authentication.getName());
         Ads newAds = adsMapper.fromCreateAds(ads, user, images);
         Ads response = adsRepository.save(newAds);
         log.info("The ad with pk = {} was saved ", response.getPk());
@@ -54,10 +57,11 @@ public class AdsServiceImpl implements AdsService {
 
     @Override
     public List<AdsDto> getAdsMe(Boolean authenticated, String authority, Object credentials, Object details, Object principal) {
-        // FIXME: Just returns all
         log.info("Trying to get all user's ads");
-
-        return toAdsDtoList(adsRepository.findAll());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUser(authentication.getName());
+        List<Ads> list = adsRepository.findAll();
+        return toAdsDtoList(list.stream().filter(e -> e.getAuthor().equals(user)).collect(Collectors.toList()));
     }
 
     @Transactional
@@ -81,7 +85,8 @@ public class AdsServiceImpl implements AdsService {
     public AdsDto updateAds(Integer id, CreateAdsDto adsDto) {
         log.info("Trying to update the ad with id = {}", id);
         Ads ads = getAds(id);
-        User user = userService.getUser(0);//todo использовать текущего юзера
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUser(authentication.getName());
         Ads updatedAds = adsMapper.fromCreateAds(adsDto, user, ads.getImage());
         updatedAds.setComments(List.copyOf(ads.getComments()));
         updatedAds.setPk(id);

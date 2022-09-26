@@ -72,8 +72,9 @@ public class UserController {
 
     @PatchMapping("me")
     public ResponseEntity<UserDto> updateUser(@RequestBody UserDto user) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        user.setEmail(authentication.getName());
         UserDto result = userService.updateUser(user);
-
         return ResponseEntity.ok(result);
     }
 

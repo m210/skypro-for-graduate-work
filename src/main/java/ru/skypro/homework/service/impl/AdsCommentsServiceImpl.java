@@ -2,11 +2,15 @@ package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 import ru.skypro.homework.models.dto.AdsCommentDto;
 import ru.skypro.homework.models.entity.Ads;
 import ru.skypro.homework.models.entity.Comments;
+import ru.skypro.homework.models.entity.User;
 import ru.skypro.homework.models.mappers.CommentsMapper;
 import ru.skypro.homework.repository.AdsCommentsRepository;
 import ru.skypro.homework.service.AdsCommentsService;
@@ -51,7 +55,11 @@ public class AdsCommentsServiceImpl implements AdsCommentsService {
 
         Comments comment = commentsMapper.toComments(adsCommentDto);
         comment.setAds(ads);
-        comment.setAuthor(userService.getUser(0)); //todo взять принципиал юзера
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails principalUser = (UserDetails) authentication.getPrincipal();
+        User user = userService.getUser(principalUser.getUsername());
+        comment.setAuthor(user);
         comment.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         Comments savedComment = adsCommentsRepository.save(comment);
         log.info("Comment with pk {} was saved ", savedComment.getPk());
@@ -80,7 +88,10 @@ public class AdsCommentsServiceImpl implements AdsCommentsService {
         Integer adPkInt = Integer.parseInt(adPk);
         Ads ads = adsService.getAds(adPkInt);
         Comments commentsModel = commentsMapper.toComments(adsCommentDto);
-        commentsModel.setAuthor(userService.getUser(0)); //todo взять принципиал юзера
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails principalUser = (UserDetails) authentication.getPrincipal();
+        User user = userService.getUser(principalUser.getUsername());
+        commentsModel.setAuthor(user);
         commentsModel.setAds(ads);
         commentsModel.setPk(id);
         commentsModel.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
