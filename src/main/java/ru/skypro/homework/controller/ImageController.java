@@ -3,6 +3,7 @@ package ru.skypro.homework.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -31,6 +32,7 @@ public class ImageController {
         return images.getData();
     }
 
+    @PreAuthorize("!hasRole('ROLE_ANONYMOUS')")
     @PostMapping(produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public byte[] addImage(@RequestBody MultipartFile file) {
         Images images = imageService.addImage(file);
@@ -38,6 +40,7 @@ public class ImageController {
         return images.getData();
     }
 
+    @PreAuthorize("!hasRole('ROLE_ANONYMOUS')")
     @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public byte[] updateImage(@RequestBody MultipartFile file, @PathVariable Integer id) {
         Images images = imageService.updateImage(id, file);
