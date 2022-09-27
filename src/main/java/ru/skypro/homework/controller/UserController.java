@@ -19,10 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.skypro.homework.models.dto.CreateUserDto;
-import ru.skypro.homework.models.dto.NewPasswordDto;
-import ru.skypro.homework.models.dto.ResponseWrapper;
-import ru.skypro.homework.models.dto.UserDto;
+import ru.skypro.homework.models.dto.*;
 import ru.skypro.homework.service.UserService;
 
 import java.util.List;
@@ -73,12 +70,15 @@ public class UserController {
     @PatchMapping("me")
     public ResponseEntity<UserDto> updateUser(@RequestBody UserDto user) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        user.setEmail(authentication.getName());
+        if(user.getEmail() == null || !userService.isAdmin(authentication)) {
+            user.setEmail(authentication.getName());
+        }
+
         UserDto result = userService.updateUser(user);
         return ResponseEntity.ok(result);
     }
 
-    @Operation(summary = "setPassword", description = "", tags = {"Пользователи"}) //todo description
+    @Operation(summary = "getUser", description = "", tags = {"Пользователи"}) //todo description
     @GetMapping("me")
     public ResponseEntity<UserDto> getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -107,6 +107,7 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden"),
             @ApiResponse(responseCode = "404", description = "Not Found")})
+
     @GetMapping("{id}")
     public ResponseEntity<UserDto> getUser(@PathVariable Integer id) {
         UserDto result = userService.getUserDto(id);

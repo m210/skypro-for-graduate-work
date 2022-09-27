@@ -25,7 +25,7 @@ public class WebSecurityConfig {
             "/swagger-ui.html",
             "/v3/api-docs",
             "/webjars/**",
-            "/ads/**",
+            "/ads",
             "/login", "/register"
     };
 
@@ -55,6 +55,7 @@ public class WebSecurityConfig {
                         authz
                                 .mvcMatchers(AUTH_WHITELIST).permitAll()
                                 .mvcMatchers("/ads/**", "/users/**").authenticated()
+                                //.antMatchers(HttpMethod.POST, "/ads").authenticated()  //XXX This doesn't work!!! Fixed by PreAuthorize in adsController
 
                 )
                 .cors().and()

@@ -160,4 +160,13 @@ public class UserServiceImpl implements UserService {
 
         return userMapper.toUserDto(user);
     }
+
+    @Override
+    public boolean isAdmin(Authentication authentication) {
+        if (authentication != null
+                && authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return true;
+        }
+        return false;
+    }
 }

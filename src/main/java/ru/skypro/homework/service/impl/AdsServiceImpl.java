@@ -3,10 +3,12 @@ package ru.skypro.homework.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import org.webjars.NotFoundException;
 import ru.skypro.homework.models.dto.AdsDto;
 import ru.skypro.homework.models.dto.CreateAdsDto;
@@ -68,7 +70,13 @@ public class AdsServiceImpl implements AdsService {
     @Override
     public void removeAds(Integer id) {
         log.info("Trying to remove the ad with id = {}", id);
-        getAds(id);
+        Ads ads = getAds(id);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUser(authentication.getName());
+        if(!ads.getAuthor().equals(user) && !userService.isAdmin(authentication)) {
+            log.warn("Unavailable to remove. It's not your ads! ads author = {}, username = {}", ads.getAuthor().getEmail(), user.getEmail());
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unavailable to remove. It's not your ads!");
+        }
         adsRepository.deleteById(id);
         log.info("The ad with id = {} was removed", id);
     }
@@ -87,6 +95,11 @@ public class AdsServiceImpl implements AdsService {
         Ads ads = getAds(id);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.getUser(authentication.getName());
+        if(!ads.getAuthor().equals(user) && !userService.isAdmin(authentication)) {
+            log.warn("Unavailable to update. It's not your ads! ads author = {}, username = {}", ads.getAuthor().getEmail(), user.getEmail());
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unavailable to update. It's not your ads!");
+        }
+
         Ads updatedAds = adsMapper.fromCreateAds(adsDto, user, ads.getImage());
         updatedAds.setComments(List.copyOf(ads.getComments()));
         updatedAds.setPk(id);
