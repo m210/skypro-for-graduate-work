@@ -34,10 +34,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,9 +48,9 @@ public class TestAddController {
     private final String LOCAL_URL = URL + PORT + "/" + "ads";
     private final AdsMapper adsMapperTest = new AdsMapperImpl();
     private final CommentsMapper commentsMapperTest = new CommentsMapperImpl();
-    private final ImagesMapper imagesMapperTest = new ImagesMapperImpl();
     private final UserMapper userMapperTest = new UserMapperImpl();
     private final JSONObject adsCommentDto = new JSONObject();
+    private final JSONObject adsJsonDTO = new JSONObject();
     @Autowired
     private WebApplicationContext context;
 
@@ -111,10 +109,11 @@ public class TestAddController {
 
         MODEL_COMMENT_LIST.add(COMMENTS_MODEL);
 
-//        adsCommentDto.put("author", AUTHORS_ID);
-//        adsCommentDto.put("createdAt", COMMENTS_DTO.getCreatedAt());
-//        adsCommentDto.put("pk", COMMENT_ID);
         adsCommentDto.put("text", TEXT);
+
+        adsJsonDTO.put("description", "description");
+        adsJsonDTO.put("price", "105");
+        adsJsonDTO.put("title", "ads title");
 
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
@@ -138,7 +137,7 @@ public class TestAddController {
 
     }
 
-    @Test//TODO починить, не работает
+    @Test
     @WithMockUser(authorities = "read")
     public void testGetAllAdsWithoutAuthority() throws Exception {
         when(adsRepository.findAll()).thenReturn(LIST_ADS);
@@ -167,8 +166,7 @@ public class TestAddController {
                 .andExpect(jsonPath("$.phone").value(AUTHORS_PHONE))
                 .andExpect(jsonPath("$.pk").value(ADS_ID))
                 .andExpect(jsonPath("$.price").value(PRICE))
-                .andExpect(jsonPath("$.title").value(TITLE))
-        ;
+                .andExpect(jsonPath("$.title").value(TITLE));
     }
 
     @Test
@@ -198,9 +196,7 @@ public class TestAddController {
                         .param("ad_pk", String.valueOf(ADS_ID))
                         .accept(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.count").value(1))
-//                .andExpect(jsonPath("$.results").value(expected))  //TODO не работает
-        ;
+                .andExpect(jsonPath("$.count").value(1));
     }
 
     @Test
@@ -282,80 +278,7 @@ public class TestAddController {
         when(adsRepository.findAll()).thenReturn(LIST_ADS);
         mockMvc.perform(get(LOCAL_URL + "/me"))
                 .andDo(print())
-                .andExpect(status().isUnauthorized())
-        ;
-    }
-
-    @Test
-    public void testPostAdsComments() throws Exception {
-        when(adsRepository.findById(ADS_ID)).thenReturn(Optional.of(ADS_MODEL));
-        when(commentsMapper.toComments(any())).thenReturn(NEW_COMMENTS_MODEL);
-
-        when(auth.getName()).thenReturn(AUTHORS_EMAIL);
-        when(auth.getPrincipal()).thenReturn(AUTHOR_MODEL);
-
-        when(userRepository.findUserByEmail(any())).thenReturn(Optional.of(AUTHOR_MODEL));
-        when(commentsMapper.toCommentsDto(any())).thenReturn(COMMENTS_DTO);
-
-        mockMvc.perform((post(LOCAL_URL + "/" + ADS_ID + "/comments").with(user("user@user.ru").password("password").roles("USER")))
-                .param("ad_pk", ADS_ID.toString())
-                .content(adsCommentDto.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.author").value(AUTHORS_ID))
-                .andExpect(jsonPath("$.createdAt").value(COMMENTS_DTO.getCreatedAt()))
-                .andExpect(jsonPath("$.pk").value(COMMENT_ID))
-                .andExpect(jsonPath("$.text").value(TEXT));
-
-//        mockMvc.perform(post(LOCAL_URL + "/" + ADS_ID + "/comments")
-//
-//                        .param("ad_pk", ADS_ID.toString())
-//                        .content(adsCommentDto.toString())
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.author").value(AUTHORS_ID))
-//                .andExpect(jsonPath("$.createdAt").value(COMMENTS_DTO.getCreatedAt()))
-//                .andExpect(jsonPath("$.pk").value(COMMENT_ID))
-//                .andExpect(jsonPath("$.text").value(TEXT));
-    }
-
-    @Test
-    public void testPostAds() throws Exception {
-        when(adsRepository.findById(ADS_ID)).thenReturn(Optional.of(ADS_MODEL));
-        when(commentsMapper.toComments(any())).thenReturn(NEW_COMMENTS_MODEL);
-
-        when(auth.getName()).thenReturn(AUTHORS_EMAIL);
-        when(auth.getPrincipal()).thenReturn(AUTHOR_MODEL);
-
-        when(userRepository.findUserByEmail(any())).thenReturn(Optional.of(AUTHOR_MODEL));
-        when(commentsMapper.toCommentsDto(any())).thenReturn(COMMENTS_DTO);
-
-        mockMvc.perform((post(LOCAL_URL + "/" + ADS_ID ).with(user("user@user.ru").password("password").roles("USER")))
-                        .param("ad_pk", ADS_ID.toString())
-                        .content(adsCommentDto.toString())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.author").value(AUTHORS_ID))
-                .andExpect(jsonPath("$.createdAt").value(COMMENTS_DTO.getCreatedAt()))
-                .andExpect(jsonPath("$.pk").value(COMMENT_ID))
-                .andExpect(jsonPath("$.text").value(TEXT));
-
-//        mockMvc.perform(post(LOCAL_URL + "/" + ADS_ID + "/comments")
-//
-//                        .param("ad_pk", ADS_ID.toString())
-//                        .content(adsCommentDto.toString())
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.author").value(AUTHORS_ID))
-//                .andExpect(jsonPath("$.createdAt").value(COMMENTS_DTO.getCreatedAt()))
-//                .andExpect(jsonPath("$.pk").value(COMMENT_ID))
-//                .andExpect(jsonPath("$.text").value(TEXT));
+                .andExpect(status().isUnauthorized());
     }
 
 

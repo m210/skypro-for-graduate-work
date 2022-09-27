@@ -17,7 +17,7 @@ public class Constants {
     protected final static String PORT = "8080";
     protected final static String TITLE = "title ads dto";
     protected final static String DESCRIPTION = "description ads dto";
-    protected final static Integer ADS_ID = 56;
+    protected final static Integer ADS_ID = 10;
     protected final static Integer ADS_ID_2 = 59;
 
     protected final static int PRICE = 150;
@@ -31,8 +31,8 @@ public class Constants {
     protected final static String AUTHORS_LAST_NAME = "Last name";
     protected final static String AUTHORS_FIRST_NAME = "First name";
     protected final static String AUTHORS_PHONE = "+79992214290";
-    protected final static String AUTHORS_EMAIL = "stranger@mail.ru";
-    protected final static String AUTHORS_PASSWORD = "password";
+    protected final static String AUTHORS_EMAIL = "ed2408@yandex.ru";
+    protected final static String AUTHORS_PASSWORD = "password1";
     protected final static User AUTHOR_MODEL= new User(AUTHORS_ID, AUTHORS_EMAIL, AUTHORS_FIRST_NAME, AUTHORS_LAST_NAME, AUTHORS_PHONE, AUTHORS_PASSWORD, new ArrayList<>(), new ArrayList<>());
     protected final static Integer COMMENT_ID = 3;
     protected final static String TEXT = "COMMENT TEXT";
