@@ -2,11 +2,17 @@ package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import org.webjars.NotFoundException;
 import ru.skypro.homework.models.dto.AdsCommentDto;
 import ru.skypro.homework.models.entity.Ads;
 import ru.skypro.homework.models.entity.Comments;
+import ru.skypro.homework.models.entity.User;
 import ru.skypro.homework.models.mappers.CommentsMapper;
 import ru.skypro.homework.repository.AdsCommentsRepository;
 import ru.skypro.homework.service.AdsCommentsService;
@@ -51,7 +57,12 @@ public class AdsCommentsServiceImpl implements AdsCommentsService {
 
         Comments comment = commentsMapper.toComments(adsCommentDto);
         comment.setAds(ads);
-        comment.setAuthor(userService.getUser(0)); //todo взять принципиал юзера
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails principalUser = (UserDetails) authentication.getPrincipal();
+        User user = userService.getUser(principalUser.getUsername());
+
+        comment.setAuthor(user);
         comment.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         Comments savedComment = adsCommentsRepository.save(comment);
         log.info("Comment with pk {} was saved ", savedComment.getPk());
@@ -62,7 +73,18 @@ public class AdsCommentsServiceImpl implements AdsCommentsService {
     @Transactional
     @Override
     public void deleteAdsComment(String adPk, Integer id) {
-        getCommentsIfPresent(adPk, id);
+        Comments comment = getCommentsIfPresent(adPk, id);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails principalUser = (UserDetails) authentication.getPrincipal();
+        User user = userService.getUser(principalUser.getUsername());
+        Ads ads = adsService.getAds(Integer.parseInt(adPk));
+
+        // An author of the ads should remove all commentaries I guess
+        if(!comment.getAuthor().equals(user) && !ads.getAuthor().equals(user) && !userService.isAdmin(authentication)) {
+            log.warn("Unavailable to update. It's not your comment! ads author = {}, comment author = {}, username = {}", ads.getAuthor().getEmail(), comment.getAuthor().getEmail(), user.getEmail());
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unavailable to update. It's not your comment!");
+        }
+
         adsCommentsRepository.deleteById(id);
         log.info("ads comment with id = {} was deleted", id);
     }
@@ -79,8 +101,18 @@ public class AdsCommentsServiceImpl implements AdsCommentsService {
     public AdsCommentDto updateAdsComment(String adPk, Integer id, AdsCommentDto adsCommentDto) {
         Integer adPkInt = Integer.parseInt(adPk);
         Ads ads = adsService.getAds(adPkInt);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails principalUser = (UserDetails) authentication.getPrincipal();
+        User user = userService.getUser(principalUser.getUsername());
+        Comments comment = getCommentsIfPresent(adPk, id);
+
+        if(!comment.getAuthor().equals(user) && !userService.isAdmin(authentication)) {
+            log.warn("Unavailable to update. It's not your comment! comment author = {}, username = {}", comment.getAuthor().getEmail(), user.getEmail());
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unavailable to update. It's not your comment!");
+        }
+
         Comments commentsModel = commentsMapper.toComments(adsCommentDto);
-        commentsModel.setAuthor(userService.getUser(0)); //todo взять принципиал юзера
+        commentsModel.setAuthor(user);
         commentsModel.setAds(ads);
         commentsModel.setPk(id);
         commentsModel.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));

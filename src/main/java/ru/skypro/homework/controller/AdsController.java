@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.models.dto.AdsCommentDto;
@@ -37,12 +38,12 @@ public class AdsController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseWrapper<AdsDto> getALLAds() {
         List<AdsDto> list = adsService.getALLAds();
-
         return new ResponseWrapper<>(list);
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("!hasRole('ROLE_ANONYMOUS')")
     public AdsDto addAds(@Valid @RequestPart("properties") @Parameter(schema = @Schema(type = "string", format = "binary")) CreateAdsDto ads,
                          @RequestPart("image") MultipartFile file) {
         Images images = imageService.addImage(file);

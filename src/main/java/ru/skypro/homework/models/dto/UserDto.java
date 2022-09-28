@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor // todo возможно удалить
 public class UserDto {
     private String email;
     private String firstName;
