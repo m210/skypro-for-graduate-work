@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.skypro.homework.models.dto.*;
 import ru.skypro.homework.service.UserService;
 
-import java.util.List;
 
 @Slf4j
 @CrossOrigin(value = "http://localhost:3000")
@@ -47,19 +46,6 @@ public class UserController {
         return ResponseEntity.ok(result);
     }
 
-    @Operation(summary = "getUsers", description = "", tags = {"Пользователи"}) //todo description
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "*/*", schema = @Schema(implementation = ResponseWrapper.class))),
-            @ApiResponse(responseCode = "401", description = "Unauthorized"),
-            @ApiResponse(responseCode = "403", description = "Forbidden"),
-            @ApiResponse(responseCode = "404", description = "Not Found")})
-    @GetMapping("notme")
-    public ResponseWrapper<UserDto> getUsers() {
-        List<UserDto> list = userService.getUsers();
-
-        return new ResponseWrapper<>(list);
-    }
-
     @Operation(summary = "updateUser", description = "", tags = {"Пользователи"}) //todo description
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "*/*", schema = @Schema(implementation = UserDto.class))),
@@ -79,6 +65,11 @@ public class UserController {
     }
 
     @Operation(summary = "getUser", description = "", tags = {"Пользователи"}) //todo description
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "*/*", schema = @Schema(implementation = ResponseWrapper.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "404", description = "Not Found")})
     @GetMapping("me")
     public ResponseEntity<UserDto> getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

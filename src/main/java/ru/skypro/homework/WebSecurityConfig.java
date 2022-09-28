@@ -33,15 +33,9 @@ public class WebSecurityConfig {
     public JdbcUserDetailsManager userDetailsService(AuthenticationManagerBuilder auth, DataSource datasource) throws Exception {
         JdbcUserDetailsManager jdbcUserDetailsManager = auth.jdbcAuthentication()
                 .passwordEncoder(new BCryptPasswordEncoder()).dataSource(datasource)
-                .usersByUsernameQuery("select email, password, enabled from users where email = ?")
-                .authoritiesByUsernameQuery("select username, role from authorities where username = ?")
+                .usersByUsernameQuery("select username, password, enabled from users where username = ?")
+                .authoritiesByUsernameQuery("select username, authority from authorities where username = ?")
                 .getUserDetailsService();
-
-        jdbcUserDetailsManager.setUserExistsSql("select email from users where email = ?");
-        jdbcUserDetailsManager.setCreateUserSql("insert into users (email, password, enabled) values (?,?,?)");
-        jdbcUserDetailsManager.setUpdateUserSql("update users set password = ?, enabled = ? where email = ?");
-        jdbcUserDetailsManager.setCreateAuthoritySql("insert into authorities (username, role) values (?,?)");
-        jdbcUserDetailsManager.setChangePasswordSql("update users set password = ? where email = ?");
 
         return jdbcUserDetailsManager;
     }
@@ -55,7 +49,6 @@ public class WebSecurityConfig {
                         authz
                                 .mvcMatchers(AUTH_WHITELIST).permitAll()
                                 .mvcMatchers("/ads/**", "/users/**").authenticated()
-                                //.antMatchers(HttpMethod.POST, "/ads").authenticated()  //XXX This doesn't work!!! Fixed by PreAuthorize in adsController
 
                 )
                 .cors().and()
