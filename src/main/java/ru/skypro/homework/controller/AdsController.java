@@ -105,12 +105,7 @@ public class AdsController {
     }
 
     @GetMapping("/search")
-    public ResponseWrapper<AdsDto> findAds(@RequestParam String searchText) {
-        return new ResponseWrapper<>(adsService.findAds(searchText));
-    }
-
-    @GetMapping("/sort")
-    public ResponseWrapper<AdsDto> getSortedAds(@RequestParam Sort.Direction order) {
-        return new ResponseWrapper<>(adsService.getSortedAds(order));
+    public ResponseWrapper<AdsDto> findAds(@RequestParam String searchText, @RequestParam Sort.Direction order) {
+        return new ResponseWrapper<>(adsService.findAds(searchText, order));
     }
 }
