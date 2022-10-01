@@ -25,7 +25,6 @@ public interface AdsService {
 
     Ads getAds(Integer id);
 
-    List<AdsDto> findAds(String title);
+    List<AdsDto> findAds(String title, Sort.Direction order);
 
-    List<AdsDto> getSortedAds(Sort.Direction order);
 }

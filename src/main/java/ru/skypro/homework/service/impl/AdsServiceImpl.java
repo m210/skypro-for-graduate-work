@@ -128,18 +128,9 @@ public class AdsServiceImpl implements AdsService {
      * @return list of found ads
      */
     @Override
-    public List<AdsDto> findAds(String title) {
+    public List<AdsDto> findAds(String title, Sort.Direction order) {
         log.info("Trying to find ads like {}", title);
-        return toAdsDtoList(adsRepository.findByTitleLikeIgnoreCase("%" + title + "%"));
-    }
-
-    /**
-     * @param order a sorting direction (ordering by increasing or decreasing)
-     * @return ordered list of all ads
-     */
-    @Override
-    public List<AdsDto> getSortedAds(Sort.Direction order) {
-        return toAdsDtoList(adsRepository.findAll(Sort.by(order, "title")));
+        return toAdsDtoList(adsRepository.findByTitleLikeIgnoreCase("%" + title + "%", Sort.by(order, "title")));
     }
 
     private List<AdsDto> toAdsDtoList(List<Ads> ads) {
