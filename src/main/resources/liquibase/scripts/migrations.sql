@@ -79,3 +79,12 @@ ALTER TABLE users
 ALTER TABLE users
     ALTER COLUMN phone DROP NOT NULL;
 
+--changeSet eradomskaya:7
+
+ALTER TABLE users
+    RENAME COLUMN email to username;
+
+--changeSet eradomskaya:8
+
+ALTER TABLE authorities
+    RENAME COLUMN role to authority;

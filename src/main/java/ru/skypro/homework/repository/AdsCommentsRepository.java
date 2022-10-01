@@ -11,6 +11,4 @@ import java.util.List;
 public interface AdsCommentsRepository extends JpaRepository<Comments, Integer> {
     List<Comments> findCommentsByAds(Ads ads);
 
-    Comments findCommentsByPk(Integer id);
-
 }
