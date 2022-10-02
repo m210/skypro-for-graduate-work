@@ -41,6 +41,8 @@ public class AdsController {
         return new ResponseWrapper<>(list);
     }
 
+
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("!hasRole('ROLE_ANONYMOUS')")
