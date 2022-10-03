@@ -267,27 +267,31 @@ public class TestAddController {
     public void testGetMyAdsWithAuthority() throws Exception {
         when(userRepository.findUserByEmail(any())).thenReturn(Optional.of(AUTHOR_MODEL));
         when(adsRepository.findAll()).thenReturn(LIST_ADS);
+        when(adsMapper.toAdsDto(any())).thenReturn(ADS_DTO);
         mockMvc.perform(get(LOCAL_URL + "/me")
                         .accept(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.count").value(1));
     }
 
     @Test
     @WithAnonymousUser
     public void testGetMyAdsWithoutAuthority() throws Exception {
+        when(userRepository.findUserByEmail(any())).thenReturn(Optional.of(AUTHOR_MODEL));
+        when(adsRepository.findAll()).thenReturn(LIST_ADS);
         mockMvc.perform(get(LOCAL_URL + "/me"))
+                .andDo(print())
                 .andExpect(status().isUnauthorized())
         ;
     }
 
     @Test
-    @WithMockUser(username = "stranger@mail.ru", authorities = "USER")//TODO Не работает
+    @WithMockUser(username = "stranger@mail.ru", authorities = "USER")
     public void testPostAdsComments() throws Exception {
         when(adsRepository.findById(ADS_ID)).thenReturn(Optional.of(ADS_MODEL));
         when(commentsMapper.toComments(any())).thenReturn(NEW_COMMENTS_MODEL);
         when(userRepository.findUserByEmail(any())).thenReturn(Optional.of(AUTHOR_MODEL));
         when(commentsMapper.toCommentsDto(any())).thenReturn(COMMENTS_DTO);
-
         System.out.println(NEW_COMMENTS_DTO);
         mockMvc.perform(MockMvcRequestBuilders
                         .post(LOCAL_URL + "/" + ADS_ID + "/comments")
@@ -295,7 +299,6 @@ public class TestAddController {
                         .content("{\"text\": \"COMMENT TEXT\""+"}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.author").value(AUTHORS_ID))
                 .andExpect(jsonPath("$.createdAt").value(COMMENTS_DTO.getCreatedAt()))
