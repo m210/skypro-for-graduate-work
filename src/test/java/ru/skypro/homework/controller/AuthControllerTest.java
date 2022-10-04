@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -17,11 +18,14 @@ import ru.skypro.homework.service.impl.AuthServiceImpl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.skypro.homework.controller.Constants.*;
+import static ru.skypro.homework.controller.Constants.AUTHORS_EMAIL;
 
 @WebMvcTest(controllers = AuthController.class)
 @RunWith(SpringJUnit4ClassRunner.class)
+@AutoConfigureMockMvc
 public class AuthControllerTest {
 
     @Autowired
@@ -70,6 +74,15 @@ public class AuthControllerTest {
                         .content(req.toString())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void loggingInWithRightUser() throws Exception {
+
+        mockMvc.perform(formLogin()
+                        .user("ed2408@yandex.ru").password("password1"))
+                .andExpect(status().isOk())
+                .andExpect(authenticated());
     }
 
 

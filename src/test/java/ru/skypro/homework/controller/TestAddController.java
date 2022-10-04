@@ -55,50 +55,37 @@ public class TestAddController {
 
     @Autowired
     private MockMvc mockMvc;
-
     @SpyBean
     private AdsServiceImpl adsService;
-
     @MockBean
     private AdsRepository adsRepository;
     @MockBean
     private Authentication auth;
-
     @SpyBean
     private AdsCommentsServiceImpl adsCommentsService;
-
     @MockBean
     private AdsCommentsRepository adsCommentsRepository;
-
     @MockBean
     private ImageRepository imageRepository;
-
     @MockBean
     private UserRepository userRepository;
-
     @SpyBean
     private UserServiceImpl userService;
-
     @SpyBean
     private ImageServiceImpl imageService;
-
     @MockBean
     private UserMapper userMapper;
-
     @MockBean
     private AdsMapper adsMapper;
-
     @MockBean
     private CommentsMapper commentsMapper;
-
     @MockBean
     private ImagesMapper imagesMapper;
-
     @InjectMocks
     private AdsController adsController;
 
     @Before
-    public void StartData() {
+    public void startData() {
         IMAGE.setPk(IMAGE_ID);
 
         AUTHOR_MODEL.setId(AUTHORS_ID);
@@ -156,7 +143,7 @@ public class TestAddController {
     }
 
     @Test//TODO починить, не работает
-    @WithAnonymousUser
+   @WithMockUser(authorities = "read")
     public void testGetAllAdsWithoutAuthority() throws Exception {
         when(adsRepository.findAll()).thenReturn(LIST_ADS);
         when(auth.isAuthenticated()).thenReturn(false);
@@ -304,12 +291,12 @@ public class TestAddController {
     }
 
     @Test
-    @WithMockUser(username = "stranger@mail.ru", authorities = "USER")
+    @WithCustomUser
     public void testPostAdsComments() throws Exception {
         when(adsRepository.findById(ADS_ID)).thenReturn(Optional.of(ADS_MODEL));
         when(commentsMapper.toComments(any())).thenReturn(NEW_COMMENTS_MODEL);
 
-        when(auth.getName()).thenReturn("stranger@mail.ru");
+        when(auth.getName()).thenReturn(AUTHORS_EMAIL);
         when(auth.getPrincipal()).thenReturn(AUTHOR_MODEL);
 
         when(userRepository.findUserByEmail(any())).thenReturn(Optional.of(AUTHOR_MODEL));
