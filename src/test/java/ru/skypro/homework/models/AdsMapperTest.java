@@ -23,12 +23,6 @@ public class AdsMapperTest {
     public void init() {
         IMAGE_MODEL.setPk(IMAGE_ID);
 
-        AUTHOR_MODEL.setId(USER_ID);
-        AUTHOR_MODEL.setPhone(USER_PHONE);
-        AUTHOR_MODEL.setFirstName(USER_FIRST_NAME);
-        AUTHOR_MODEL.setLastName(USER_LAST_NAME);
-        AUTHOR_MODEL.setEmail(USER_EMAIL);
-
     }
 
 

@@ -29,7 +29,7 @@ public class Constants {
 
     protected final static Images IMAGE_MODEL = new Images();
 
-    protected final static User AUTHOR_MODEL= new User();
+    protected final static User AUTHOR_MODEL= new User(USER_ID, USER_EMAIL, USER_FIRST_NAME, USER_LAST_NAME, USER_PHONE, USER_PASSWORD, COMMENTS_LIST, ADS_LIST);
 
     protected final static String IMAGE_FULL_URL = "http://127.0.0.1:8080/image/12";
 
