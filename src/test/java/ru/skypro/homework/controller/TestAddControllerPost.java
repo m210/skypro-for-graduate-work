@@ -10,12 +10,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import ru.skypro.homework.models.mappers.*;
 import ru.skypro.homework.repository.AdsCommentsRepository;
 import ru.skypro.homework.repository.AdsRepository;
@@ -50,8 +50,8 @@ public class TestAddControllerPost {
 
     private final JSONObject adsJsonDTO = new JSONObject();
 
-//    @Autowired
-//    private WebApplicationContext context;
+    @Autowired
+    private WebApplicationContext context;
 //
 //    @Mock
 //    SecurityContext mockSecurityContext;
@@ -119,11 +119,8 @@ public class TestAddControllerPost {
         adsJsonDTO.put("description", "description");
         adsJsonDTO.put("price", "105");
         adsJsonDTO.put("title", "ads title");
+        mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 
-//        mockMvc = MockMvcBuilders
-//                .webAppContextSetup(context)
-//                .apply(springSecurity())
-//                .build();
 
     }
 
@@ -138,21 +135,13 @@ public class TestAddControllerPost {
     public void testPostAdsComments() throws Exception {
         when(adsRepository.findById(ADS_ID)).thenReturn(Optional.of(ADS_MODEL));
         when(commentsMapper.toComments(any())).thenReturn(NEW_COMMENTS_MODEL);
+        when(adsCommentsRepository.save(any())).thenReturn(NEW_COMMENTS_MODEL);
 
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        System.out.println(securityContext.getAuthentication().isAuthenticated());
-        System.out.println(securityContext.getAuthentication().getName());
-        System.out.println(securityContext.getAuthentication().getPrincipal());
-
-//        when(auth.getName()).thenReturn(AUTHORS_EMAIL);
-//        when(auth.getPrincipal()).thenReturn(AUTHOR_MODEL);
 
         when(userRepository.findUserByEmail(any())).thenReturn(Optional.of(AUTHOR_MODEL));
         when(commentsMapper.toCommentsDto(any())).thenReturn(COMMENTS_DTO);
 
         mockMvc.perform((post(LOCAL_URL + "/" + ADS_ID + "/comments")
-//                        .with(user(AUTHORS_EMAIL).password(AUTHORS_PASSWORD).roles("USER")))
-//                        .param("ad_pk", ADS_ID.toString())
                         .content(adsCommentDto.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)))
@@ -163,17 +152,7 @@ public class TestAddControllerPost {
                 .andExpect(jsonPath("$.pk").value(COMMENT_ID))
                 .andExpect(jsonPath("$.text").value(TEXT));
 
-//        mockMvc.perform(post(LOCAL_URL + "/" + ADS_ID + "/comments")
-//
-//                        .param("ad_pk", ADS_ID.toString())
-//                        .content(adsCommentDto.toString())
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.author").value(AUTHORS_ID))
-//                .andExpect(jsonPath("$.createdAt").value(COMMENTS_DTO.getCreatedAt()))
-//                .andExpect(jsonPath("$.pk").value(COMMENT_ID))
-//                .andExpect(jsonPath("$.text").value(TEXT));
+
     }
 
     @Test
