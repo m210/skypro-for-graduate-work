@@ -46,4 +46,7 @@ public class Constants {
     protected static FullAdsDto FULL_ADS_DTO = new FullAdsDto();
     protected static UserDto USER_DTO = new UserDto();
 
+    protected static String NEW_TEXT = "New text";
+
+
 }
