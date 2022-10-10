@@ -161,13 +161,12 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserDto(user);
     }
 
-    /**
-     * @param authentication current authentication from security context
-     * the method checks if the current user is admin
-     */
     @Override
     public boolean isAdmin(Authentication authentication) {
-        return authentication != null
-                && authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (authentication != null
+                && authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return true;
+        }
+        return false;
     }
 }
